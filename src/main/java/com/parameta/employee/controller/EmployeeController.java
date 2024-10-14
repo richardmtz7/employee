@@ -20,6 +20,10 @@ import com.parameta.employee.entity.DTO.EmployeeResponse;
 import com.parameta.employee.service.EmployeeService;
 import com.parameta.employee.util.Utils;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+
 @RestController
 @RequestMapping("api/employee")
 public class EmployeeController {
@@ -30,6 +34,11 @@ public class EmployeeController {
 		this.employeeService = employeeService;
 	}
 	
+	@Operation(summary = "Create an employee")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "201", description = "Employee created"),
+	        @ApiResponse(responseCode = "500", description = "Internal server error")
+	})
 	@PostMapping("/create")
 	public ResponseEntity<Employee> createEmployee(
 			@RequestParam String name,
@@ -61,6 +70,11 @@ public class EmployeeController {
 		}
 	}
 	
+	@Operation(summary = "Get employee by id")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Employee founded"),
+	        @ApiResponse(responseCode = "404", description = "Employee not found")
+	})
 	@GetMapping("/get/{id}")
 	public ResponseEntity<EmployeeResponse> getEmployeeById(@PathVariable Integer id){
 		try {
@@ -71,23 +85,33 @@ public class EmployeeController {
 			String startJobDate = employeeService.calculateVinculationDate(employeeObject.get().getStartJobDate());
 			String name = employeeObject.get().getName().concat(" " + employeeObject.get().getLastName());
 			EmployeeResponse response = new EmployeeResponse(name , age, startJobDate);
-			return new ResponseEntity<>(response, HttpStatus.FOUND);
+			return new ResponseEntity<>(response, HttpStatus.OK);
 			
 		} catch (NoSuchElementException e) {
 			throw new NoSuchElementException(e.getMessage());
 		}
 	}
 	
+	@Operation(summary = "Get all employees")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "200", description = "Employees founded"),
+	        @ApiResponse(responseCode = "404", description = "Employees not found")
+	})
 	@GetMapping("/get/all")
 	public ResponseEntity<List<EmployeeResponse>> getAllEmployees(){
 		try {
 			List<EmployeeResponse> employees = employeeService.getAllEmployees();
-			return new ResponseEntity<>(employees, HttpStatus.FOUND);
+			return new ResponseEntity<>(employees, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 		}
 	}
 	
+	@Operation(summary = "Update employee status")
+	@ApiResponses(value = {
+			@ApiResponse(responseCode = "202", description = "Employees statud updated"),
+	        @ApiResponse(responseCode = "404", description = "Employees not found")
+	})
 	@PutMapping("/change-status/{id}")
 	public ResponseEntity<String> deactivateEmployeeById(@PathVariable Integer id){
 		try {
